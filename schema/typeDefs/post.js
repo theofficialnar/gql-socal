@@ -8,12 +8,12 @@ module.exports = gql`
   }
 
   extend type Query {
-    post(id: ID!): Post,
-    posts: [Post!]!
+    getPost(id: ID!): Post,
+    getPosts: [Post!]!
   }
 
   extend type Mutation {
-    addPost(post: String!, userId: ID!): Post
+    addPost(post: String!): Post
     removePost(id: ID!): String
   }
 `;

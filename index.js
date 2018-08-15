@@ -24,7 +24,10 @@ const server = new ApolloServer({
   },
   context: ({ req }) => {
     const token = req.headers.authorization || '';
-    const user = jwt.verify(token, JWT_SECRET);
+    let user = '';
+    if (token !== '') {
+      user = jwt.verify(token, JWT_SECRET);
+    }
     return { user };
   },
 });

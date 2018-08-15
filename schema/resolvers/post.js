@@ -1,47 +1,49 @@
+const { AuthenticationError } = require('apollo-server');
 const { Post, User } = require('../../models');
 
-const userInfo = async (parent, args, context, info) => {
-  return await User.findById(parent.userId);
-}
+const userInfo = parent => User.findById(parent.userId);
 
-const post = async (parent, args, context, info) => {
-  return await Post.findById(args.id);
-}
+const getPost = (_, { id }) => Post.findById(id);
 
-const posts = async (parent, args, context, info) => {
-  return await Post.find();
-}
+const getPosts = () => Post.find();
 
-const addPost = async (parent, args, context, info) => {
-  let user = await User.findById(args.userId);
-  let newPost = new Post({
-    post: args.post,
-    userId: args.userId
+const addPost = async (_, { post }, context) => {
+  if (!context.user.id) {
+    throw new AuthenticationError('You need to be logged in to do this.');
+  }
+  const { id } = context.user;
+  const user = await User.findById(id);
+  const newPost = new Post({
+    post,
+    userId: id,
   });
-  let post = await newPost.save();
-  user.posts.push(post);
+  const posted = await newPost.save();
+  if (!posted) {
+    throw new Error('Unable to save post.');
+  }
+  user.posts.push(posted);
   user.save();
-  return post;
-}
+  return posted;
+};
 
 const removePost = async (parent, args, context, info) => {
-  let postToRemove = await Post.findById(args.id);
+  const postToRemove = await Post.findById(args.id);
   if (await postToRemove.remove()) {
-    let message = 'Post deleted.';
+    const message = 'Post deleted.';
     return message;
   }
-}
+};
 
 module.exports = {
   Query: {
-    post,
-    posts
+    getPost,
+    getPosts,
   },
   Mutation: {
     addPost,
     removePost,
   },
   Post: {
-    user: userInfo
-  }
-}
+    user: userInfo,
+  },
+};

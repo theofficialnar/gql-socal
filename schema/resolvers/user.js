@@ -2,17 +2,11 @@ const bcrypt = require('bcrypt');
 
 const { User, Post } = require('../../models');
 
-const posts = (parent, args, context, info) => Post.find({ userId: parent.id });
+const getPosts = parent => Post.find({ userId: parent.id });
 
-const user = (parent, args, context, info) => User.findById(args.id);
+const getUser = (_, { id }) => User.findById(id);
 
-const addUser = async (parent, args, context, info) => {
-  const {
-    name,
-    email,
-    password,
-    access,
-  } = args;
+const addUser = async (_, { name, email, password, access }) => {
   const hashPass = await bcrypt.hash(password, 10);
   const userNew = new User({
     name,
@@ -28,17 +22,19 @@ const addUser = async (parent, args, context, info) => {
   };
 };
 
-const deleteUser = async (parent, args, context, info) => {
-  let message = 'Error deleting user.';
-  const userToRemove = await User.findById(args.id);
+const deleteUser = async (_, { id }) => {
+  let message = '';
+  const userToRemove = await User.findById(id);
+  if (!userToRemove) {
+    throw new Error('User does not exist.');
+  }
   if (await userToRemove.remove()) {
     message = 'User deleted.';
   }
   return message;
 };
 
-const loginUser = async (parent, args, context, info) => {
-  const { email, password } = args;
+const loginUser = async (_, { email, password }) => {
   const userLogin = await User.findOne({ email }, (err, res) => {
     if (res) return res;
   });
@@ -58,7 +54,7 @@ const loginUser = async (parent, args, context, info) => {
 
 module.exports = {
   Query: {
-    user,
+    getUser,
   },
   Mutation: {
     addUser,
@@ -66,6 +62,6 @@ module.exports = {
     loginUser,
   },
   User: {
-    posts,
+    posts: getPosts,
   },
 };
