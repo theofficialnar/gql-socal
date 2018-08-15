@@ -1,8 +1,15 @@
+require('./config');
 const { ApolloServer } = require('apollo-server');
 const mongoose = require('mongoose');
-const { typeDefs, resolvers } = require('./schema');
+const jwt = require('jsonwebtoken');
+const {
+  typeDefs,
+  resolvers,
+} = require('./schema');
 
-mongoose.connect('mongodb://localhost:27017/gql-playground', { useNewUrlParser: true }).then(
+const { MONGODB_URI, JWT_SECRET } = process.env;
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).then(
   () => console.log('MongoDB connection successful.'),
   err => console.error(err),
 );
@@ -15,12 +22,11 @@ const server = new ApolloServer({
       'editor.cursorShape': 'block',
     },
   },
-  // context: ({ req }) => {
-  //   const token = req.headers.authorization || '';
-  //   // eslint-disable-next-line
-  //   const user = getUser(token);
-  //   return { user };
-  // },
+  context: ({ req }) => {
+    const token = req.headers.authorization || '';
+    const user = jwt.verify(token, JWT_SECRET);
+    return { user };
+  },
 });
 
 server.listen().then(({ url }) => console.log(`Server running at ${url}`));

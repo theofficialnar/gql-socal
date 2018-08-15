@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 const schema = new mongoose.Schema({
   name: {
@@ -12,6 +13,10 @@ const schema = new mongoose.Schema({
     unique: true,
   },
   password: {
+    type: String,
+    required: true,
+  },
+  access: {
     type: String,
     required: true,
   },
@@ -33,5 +38,23 @@ schema.pre('remove', function(next) {
   });
   next();
 });
+
+/**
+ * Generate jwt token
+ * @return {string} token
+ */
+// eslint-disable-next-line
+schema.methods.generateToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+      name: this.name,
+      email: this.email,
+      access: this.access,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' },
+  );
+};
 
 module.exports = mongoose.model('User', schema);

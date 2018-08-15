@@ -1,0 +1,6 @@
+{
+  "development": {
+    "MONGODB_URI": "mongodb://localhost:27017/gql-playground",
+    "JWT_SECRET": "i8VFVndGfm"
+  }
+}
