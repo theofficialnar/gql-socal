@@ -1,15 +1,14 @@
 require('./config');
 const { ApolloServer } = require('apollo-server');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
+
 const {
   typeDefs,
   resolvers,
 } = require('./schema');
+const { getUser } = require('./utils/getUser');
 
-const { MONGODB_URI, JWT_SECRET } = process.env;
-
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true }).then(
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true }).then(
   () => console.log('MongoDB connection successful.'),
   err => console.error(err),
 );
@@ -22,12 +21,9 @@ const server = new ApolloServer({
       'editor.cursorShape': 'block',
     },
   },
-  context: ({ req }) => {
+  context: async ({ req }) => {
     const token = req.headers.authorization || '';
-    let user = '';
-    if (token !== '') {
-      user = jwt.verify(token, JWT_SECRET);
-    }
+    const user = await getUser(token);
     return { user };
   },
 });

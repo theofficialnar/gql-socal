@@ -8,14 +8,14 @@ const getPost = (_, { id }) => Post.findById(id);
 const getPosts = () => Post.find();
 
 const addPost = async (_, { post }, context) => {
-  if (!context.user.id) {
+  if (!context.user) {
     throw new AuthenticationError('You need to be logged in to do this.');
   }
-  const { id } = context.user;
-  const user = await User.findById(id);
+  const { _id } = context.user;
+  const user = await User.findById(_id);
   const newPost = new Post({
     post,
-    userId: id,
+    userId: _id,
   });
   const posted = await newPost.save();
   if (!posted) {
@@ -26,12 +26,20 @@ const addPost = async (_, { post }, context) => {
   return posted;
 };
 
-const removePost = async (parent, args, context, info) => {
-  const postToRemove = await Post.findById(args.id);
-  if (await postToRemove.remove()) {
-    const message = 'Post deleted.';
-    return message;
+const removePost = async (_, { id }, context) => {
+  let message = '';
+  if (!context.user) {
+    throw new AuthenticationError('You need to be logged in to do this.');
   }
+  const postToRemove = await Post.findById(id);
+  if (!postToRemove) {
+    throw new Error('Post does not exist.');
+  } else if (postToRemove.userId.toString() !== context.user._id.toString()) {
+    throw new AuthenticationError('You are not authorized to delete this post.');
+  } else if (await postToRemove.remove()) {
+    message = 'Post deleted.';
+  }
+  return message;
 };
 
 module.exports = {
