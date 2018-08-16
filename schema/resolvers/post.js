@@ -1,5 +1,7 @@
 const { AuthenticationError } = require('apollo-server');
+
 const { Post, User } = require('../../models');
+const authorize = require('../../utils/authorize');
 
 const userInfo = parent => User.findById(parent.userId);
 
@@ -8,9 +10,7 @@ const getPost = (_, { id }) => Post.findById(id);
 const getPosts = () => Post.find();
 
 const addPost = async (_, { post }, context) => {
-  if (!context.user) {
-    throw new AuthenticationError('You need to be logged in to do this.');
-  }
+  authorize(context);
   const { _id } = context.user;
   const user = await User.findById(_id);
   const newPost = new Post({
@@ -28,9 +28,7 @@ const addPost = async (_, { post }, context) => {
 
 const removePost = async (_, { id }, context) => {
   let message = '';
-  if (!context.user) {
-    throw new AuthenticationError('You need to be logged in to do this.');
-  }
+  authorize(context);
   const postToRemove = await Post.findById(id);
   if (!postToRemove) {
     throw new Error('Post does not exist.');
@@ -42,6 +40,10 @@ const removePost = async (_, { id }, context) => {
   return message;
 };
 
+const updatePost = (_, { post, id }, context) => {
+  authorize(context);
+};
+
 module.exports = {
   Query: {
     getPost,
@@ -50,6 +52,7 @@ module.exports = {
   Mutation: {
     addPost,
     removePost,
+    updatePost,
   },
   Post: {
     user: userInfo,

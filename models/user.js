@@ -16,7 +16,7 @@ const schema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  access: {
+  role: {
     type: String,
     required: true,
   },
@@ -50,7 +50,7 @@ schema.methods.generateToken = function () {
       id: this._id,
       name: this.name,
       email: this.email,
-      access: this.access,
+      role: this.role,
     },
     process.env.JWT_SECRET,
     { expiresIn: '1d' },

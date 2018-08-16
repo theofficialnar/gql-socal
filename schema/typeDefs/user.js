@@ -9,12 +9,13 @@ module.exports = gql`
   }
 
   extend type Query {
-    getUser(id: ID!): User
+    getUser(id: ID!): User,
+    getUsers: [User!]!
   }
 
   extend type Mutation {
-    addUser(name: String!, email: String!, password: String!, access: String = "admin"): AuthPayload
-    deleteUser(id: ID!): String
+    createUser(name: String!, email: String!, password: String!, role: String = "admin"): AuthPayload
+    removeUser(id: ID!): String
     loginUser(email: String!, password: String!): AuthPayload
   }
 `;

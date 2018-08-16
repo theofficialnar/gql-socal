@@ -6,7 +6,8 @@ const {
   typeDefs,
   resolvers,
 } = require('./schema');
-const { getUser } = require('./utils/getUser');
+const getUser = require('./utils/getUser');
+const generateUserModels = require('./schema/models/user');
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true }).then(
   () => console.log('MongoDB connection successful.'),
@@ -24,7 +25,12 @@ const server = new ApolloServer({
   context: async ({ req }) => {
     const token = req.headers.authorization || '';
     const user = await getUser(token);
-    return { user };
+    return {
+      user,
+      models: {
+        User: generateUserModels(),
+      },
+    };
   },
 });
 
