@@ -13,8 +13,8 @@ module.exports = gql`
   }
 
   extend type Mutation {
-    addPost(post: String!): Post
-    removePost(id: ID!): String
+    createPost(post: String!): Post
+    deletePost(id: ID!): String
     updatePost(post: String!, id: ID!): Post
   }
 `;

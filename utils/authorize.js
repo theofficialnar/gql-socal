@@ -1,7 +1,7 @@
 const { AuthenticationError } = require('apollo-server');
 
-module.exports = (context) => {
-  if (!context.user) {
+module.exports = (user) => {
+  if (!user) {
     throw new AuthenticationError('You need to be logged in to do this.');
   }
 };

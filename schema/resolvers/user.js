@@ -1,5 +1,3 @@
-const { Post } = require('../../models');
-
 module.exports = {
   Query: {
     getUser: (parent, { id }, context) => context.models.User.getById(id),
@@ -12,10 +10,10 @@ module.exports = {
       password,
       role,
     }, context) => context.models.User.create(name, email, password, role),
-    removeUser: (parent, { id }, context) => context.models.User.remove(id),
+    deleteUser: (parent, { id }, context) => context.models.User.delete(id),
     loginUser: (parent, { email, password }, context) => context.models.User.login(email, password),
   },
   User: {
-    posts: parent => Post.find({ userId: parent.id }),
+    posts: ({ id }, args, context) => context.models.Post.getByAuthor(id),
   },
 };

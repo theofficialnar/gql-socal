@@ -20,7 +20,10 @@ module.exports = () => ({
       user: userNew,
     };
   },
-  remove: async (id) => {
+  update: () => {
+
+  },
+  delete: async (id) => {
     let message = '';
     const userToRemove = await User.findById(id);
     if (!userToRemove) {

@@ -2,12 +2,10 @@ require('./config');
 const { ApolloServer } = require('apollo-server');
 const mongoose = require('mongoose');
 
-const {
-  typeDefs,
-  resolvers,
-} = require('./schema');
+const { typeDefs, resolvers } = require('./schema');
 const getUser = require('./utils/getUser');
 const generateUserModels = require('./schema/models/user');
+const generatePostModels = require('./schema/models/post');
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true }).then(
   () => console.log('MongoDB connection successful.'),
@@ -29,6 +27,7 @@ const server = new ApolloServer({
       user,
       models: {
         User: generateUserModels(),
+        Post: generatePostModels(user),
       },
     };
   },
