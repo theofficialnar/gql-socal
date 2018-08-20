@@ -26,7 +26,7 @@ const server = new ApolloServer({
     return {
       user,
       models: {
-        User: generateUserModels(),
+        User: generateUserModels(user),
         Post: generatePostModels(user),
       },
     };

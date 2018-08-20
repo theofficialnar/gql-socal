@@ -23,8 +23,21 @@ module.exports = user => ({
     u.save();
     return posted;
   },
-  update: () => {
-
+  update: async (id, post) => {
+    authorize(user);
+    const updateQuery = {};
+    if (post) {
+      updateQuery.post = post;
+    }
+    const postToUpdate = await Post.findByIdAndUpdate(
+      { _id: id, userId: user._id },
+      { $set: updateQuery },
+      { new: true },
+    );
+    if (!postToUpdate) {
+      throw new Error('An error was encountered. Either the post is not yours or it does not exist.');
+    }
+    return postToUpdate;
   },
   delete: async (id) => {
     let result = '';

@@ -15,6 +15,7 @@ module.exports = gql`
 
   extend type Mutation {
     createUser(name: String!, email: String!, password: String!, role: String = "admin"): AuthPayload
+    updateUser(name: String, email: String, password: String): User
     deleteUser(id: ID!): String
     loginUser(email: String!, password: String!): AuthPayload
   }

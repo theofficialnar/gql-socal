@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
+const { AuthenticationError } = require('apollo-server');
 
 const { User } = require('../../models');
+const authorize = require('../../utils/authorize');
 
-module.exports = () => ({
+module.exports = user => ({
   getAll: () => User.find(),
   getById: id => User.findById(id),
   create: async (name, email, password, role) => {
@@ -20,8 +22,27 @@ module.exports = () => ({
       user: userNew,
     };
   },
-  update: () => {
-
+  update: async (name, email, password) => {
+    authorize(user);
+    const updateQuery = {};
+    if (name) {
+      updateQuery.name = name;
+    }
+    if (email) {
+      updateQuery.email = email;
+    }
+    if (password) {
+      updateQuery.password = await bcrypt.hash(password, 10);
+    }
+    const userToUpdate = await User.findByIdAndUpdate(
+      { _id: user._id },
+      { $set: updateQuery },
+      { new: true },
+    );
+    if (!userToUpdate) {
+      throw new Error('User does not exist.');
+    }
+    return userToUpdate;
   },
   delete: async (id) => {
     let message = '';

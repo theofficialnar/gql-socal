@@ -5,7 +5,7 @@ module.exports = {
   },
   Mutation: {
     createPost: (parent, { post }, context) => context.models.Post.create(post),
-    updatePost: (parent, args, context) => context.models.Post.update(),
+    updatePost: (parent, { id, post }, context) => context.models.Post.update(id, post),
     deletePost: (parent, { id }, context) => context.models.Post.delete(id),
   },
   Post: {
